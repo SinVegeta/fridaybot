@@ -34,7 +34,7 @@ SUPPORTED_AUDIO_FORMATS = ['.mp3', '.wav', '.m4a', '.mp4', '.ogg', '.flac']
 
 # Available voices for text-to-speech
 AVAILABLE_VOICES = [
-    "friday",
+    "Arista-PlayAI",
     
 ]
 
@@ -97,7 +97,7 @@ def initialize_session_state():
     if 'active_mode' not in st.session_state:
         st.session_state.active_mode = "chatbot"  # Default mode
     if 'selected_voice' not in st.session_state:
-        st.session_state.selected_voice = "Arista-PlayAI"
+        st.session_state.selected_voice = AVAILABLE_VOICES[0]
 
 def create_conversation(model, memory_length):
     """Create a new conversation with the specified model and memory"""
@@ -202,7 +202,7 @@ def main():
         
         # Memory settings
         st.subheader('')
-        memory_length = 15
+        memory_length = 5
         # Update memory length if changed
         if memory_length != st.session_state.memory_length:
             st.session_state.memory_length = memory_length
@@ -451,7 +451,7 @@ def main():
             st.write("Record your voice using the microphone:")
             # Record button with custom styling
             if st.button("🎤 Start Recording", key="record_btn", use_container_width=True):
-                audio_bytes = st.audio(st.microphone_input("Recording..."), format="audio/wav")
+                audio_bytes = st.audio(st.audio_input("Recording..."), format="audio/wav")
                 
                 if audio_bytes:
                     filename = "recorded_audio.wav"
