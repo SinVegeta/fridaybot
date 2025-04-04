@@ -166,8 +166,8 @@ def handle_model_change():
 def main():
     # Page configuration
     st.set_page_config(
-        page_title="AI Assistant",
-        page_icon="🤖",
+        page_title="Friday",
+        page_icon="👾",
         layout="wide"
     )
     
@@ -232,18 +232,18 @@ def main():
             }}
             
             [data-testid="stAppViewContainer"] {{
-                background-image: url("data:image/png;base64,{encoded_img}");
-                background-size: 100%;
-                background-position: right bottom;
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-                position: relative;
-                min-height: 100vh;
+            background-image: url("data:image/png;base64,{encoded_img}");
+            background-size: cover;
+            background-position: right bottom;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            min-height: 100vh;
+            overflow-y: auto;
             }}
             
             [data-testid="stAppViewContainer"]::before {{
                 content: '';
-                position: fixed;
+                position: absolute;
                 top: 0;
                 left: 0;
                 right: 0;
@@ -441,89 +441,39 @@ def main():
             handle_user_input(user_question)
     
     elif st.session_state.active_mode == "speech_to_text":
-        # Speech to Text section with live recording
-        st.subheader("🎤 Voice Recording & Transcription")
-        
-        # Create tabs for different input methods
-        tab1, tab2 = st.tabs(["🎙️ Live Recording", "📂 Upload File"])
-        
-        with tab1:
-            st.write("Record your voice using the microphone:")
-            # Record button with custom styling
-            if st.button("🎤 Start Recording", key="record_btn", use_container_width=True):
-                audio_bytes = st.audio(st.audio_input("Recording..."), format="audio/wav")
-                
-                if audio_bytes:
-                    filename = "recorded_audio.wav"
-                    with open(filename, "wb") as file:
-                        file.write(audio_bytes)
-                    
-                    st.success("✅ Audio Recorded & Saved!")
-                    
-                    # Transcribe the recorded audio
-                    with open(filename, "rb") as file:
-                        with st.spinner("📝 Transcribing audio..."):
-                            transcription = groq_client.audio.transcriptions.create(
-                                file=("recorded_audio.wav", file.read()),
-                                model="whisper-large-v3-turbo",
-                                response_format="verbose_json",
-                            )
-                    
-                    transcribed_text = transcription.text
-                    st.subheader("📜 Transcription:")
-                    st.text_area("Transcribed Text", transcribed_text, height=150, key="recorded_transcription")
-                    
-                    # Text-to-Speech playback
-                    if st.button("🔊 Convert to Speech", key="tts_recorded"):
-                        with st.spinner("🎙️ Generating Speech..."):
-                            response = groq_client.audio.speech.create(
-                                model="playai-tts",
-                                voice=st.session_state.selected_voice,
-                                input=transcribed_text,
-                                response_format="wav"
-                            )
-                            
-                            # Play the generated speech
-                            st.audio(response.read(), format="audio/wav")
-                            st.success("✅ Speech Generated!")
-                    
-                    # Add transcription to chat if user wants
-                    if st.button("💬 Add to Chat", key="add_recorded_to_chat"):
-                        st.session_state.active_mode = "chatbot"
-                        handle_user_input(f"Transcribed text: {transcribed_text}")
-        
-        with tab2:
-            st.write("Upload an audio file for transcription:")
-            audio_file = st.file_uploader(
-                "Choose an audio file",
-                type=[fmt[1:] for fmt in SUPPORTED_AUDIO_FORMATS],
-                help="Supported formats: MP3, WAV, M4A, MP4, OGG, FLAC"
-            )
-            
-            if audio_file:
-                with st.spinner("Transcribing audio..."):
-                    transcription = transcribe_audio(audio_file)
-                    st.subheader("📜 Transcription:")
-                    st.text_area("Transcribed Text", transcription, height=150, key="uploaded_transcription")
-                
-                # Text-to-Speech playback
-                if st.button("🔊 Convert to Speech", key="tts_uploaded"):
-                    with st.spinner("🎙️ Generating Speech..."):
-                        response = groq_client.audio.speech.create(
-                            model="playai-tts",
-                            voice=st.session_state.selected_voice,
-                            input=transcription,
-                            response_format="wav"
-                        )
-                        
-                        # Play the generated speech
-                        st.audio(response.read(), format="audio/wav")
-                        st.success("✅ Speech Generated!")
-                
-                # Add transcription to chat if user wants
-                if st.button("💬 Add to Chat", key="add_uploaded_to_chat"):
-                    st.session_state.active_mode = "chatbot"
-                    handle_user_input(f"Transcribed text: {transcription}")
+        # Speech to Text: Only file upload
+        st.subheader("📂 Upload Audio File for Transcription")
+
+        st.write("Upload an audio file for transcription:")
+        audio_file = st.file_uploader(
+            "Choose an audio file",
+            type=[fmt[1:] for fmt in SUPPORTED_AUDIO_FORMATS],
+            help="Supported formats: MP3, WAV, M4A, MP4, OGG, FLAC"
+        )
+
+        if audio_file:
+            with st.spinner("📝 Transcribing audio..."):
+                transcription = transcribe_audio(audio_file)
+                st.subheader("📜 Transcription:")
+                st.text_area("Transcribed Text", transcription, height=150, key="uploaded_transcription")
+
+            # Text-to-Speech playback
+            if st.button("🔊 Convert to Speech", key="tts_uploaded"):
+                with st.spinner("🎙️ Generating Speech..."):
+                    response = groq_client.audio.speech.create(
+                        model="playai-tts",
+                        voice=st.session_state.selected_voice,
+                        input=transcription,
+                        response_format="wav"
+                    )
+                    st.audio(response.read(), format="audio/wav")
+                    st.success("✅ Speech Generated!")
+
+            # Add transcription to chat
+            if st.button("💬 Add to Chat", key="add_uploaded_to_chat"):
+                st.session_state.active_mode = "chatbot"
+                handle_user_input(f"Transcribed text: {transcription}")
+
     
     elif st.session_state.active_mode == "text_to_speech":
         # Text to Speech section
