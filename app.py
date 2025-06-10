@@ -10,11 +10,11 @@ import tempfile
 from pathlib import Path
 import base64
 
-# Load environment variables
+# Loading environment variables
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 
-# Initialize Groq client
+# Initializing Groq client
 groq_client = Groq(api_key=groq_api_key)
 
 # Debug logging
@@ -174,7 +174,7 @@ def main():
     # Initialize session state
     initialize_session_state()
     
-    # Create sidebar
+    # Creating  sidebar
     with st.sidebar:
         st.title('MODES')
         
