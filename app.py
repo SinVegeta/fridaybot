@@ -1,7 +1,7 @@
 import streamlit as st
 import os
-from langchain.chains import ConversationChain
-from langchain.chains.conversation.memory import ConversationBufferWindowMemory
+from langchain.chains.conversation.base import ConversationChain   # ✅ Updated import
+from langchain.memory import ConversationBufferWindowMemory         # ✅ Updated import
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 import time
@@ -9,6 +9,7 @@ from groq import Groq
 import tempfile
 from pathlib import Path
 import base64
+
 
 # Loading environment variables
 load_dotenv()
